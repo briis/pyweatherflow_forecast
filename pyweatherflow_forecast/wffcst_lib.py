@@ -29,6 +29,7 @@ from .data import (
 )
 from .const import _LOGGER
 
+
 class WeatherFlowForecastBadRequest(Exception):
     """Request is invalid."""
 
@@ -49,18 +50,19 @@ class WeatherFlowAPIBase:
     """Baseclass to use as dependency injection pattern for easier automatic testing."""
 
     @abc.abstractmethod
-    def api_request( self, url: str) -> dict[str, Any]:
+    def api_request(self, url: str) -> dict[str, Any]:
         """Override this."""
         raise NotImplementedError(
             "users must define api_request to use this base class"
         )
 
     @abc.abstractmethod
-    async def async_api_request( self, url: str) -> dict[str, Any]:
+    async def async_api_request(self, url: str) -> dict[str, Any]:
         """Override this."""
         raise NotImplementedError(
             "users must define async_api_request to use this base class"
         )
+
 
 class WeatherFlowAPI(WeatherFlowAPIBase):
     """Default implementation for WeatherFlow api."""
@@ -123,11 +125,11 @@ class WeatherFlow:
     """Class that uses the Better Forecast API from WeatherFlow to retreive forecast data."""
 
     def __init__(
-        self,
-        station_id: int,
-        api_token: str,
-        session: aiohttp.ClientSession = None,
-        api: WeatherFlowAPIBase = WeatherFlowAPI(),
+            self,
+            station_id: int,
+            api_token: str,
+            session: aiohttp.ClientSession = None,
+            api: WeatherFlowAPIBase = WeatherFlowAPI(),
     ) -> None:
         """Return data from WeatherFlow API."""
         self._station_id = station_id
@@ -142,7 +144,6 @@ class WeatherFlow:
 
         if session:
             self._api.session = session
-
 
     def get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -397,7 +398,7 @@ def _get_stations(api_result: dict) -> list[WeatherFlowStationData]:
                 serial_number = device.get("serial_number", None)
                 break
 
-        stations.append( WeatherFlowStationData(
+        stations.append(WeatherFlowStationData(
             station_name,
             latitude,
             longitude,
@@ -407,13 +408,12 @@ def _get_stations(api_result: dict) -> list[WeatherFlowStationData]:
             serial_number,
         ))
 
-
     return stations
 
 
-
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_sensor_data(api_result: dict, elevation: float, voltage: float, station_name: str) -> list[WeatherFlowSensorData]:
+def _get_sensor_data(api_result: dict, elevation: float, voltage: float, station_name: str) -> list[
+    WeatherFlowSensorData]:
     """Return WeatherFlowSensorData list from API."""
 
     _LOGGER.debug("ELEVATION: %s", elevation)
@@ -503,6 +503,7 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float, station
 
     return sensor_data
 
+
 # pylint: disable=R0914, R0912, W0212, R0915
 def _get_device_data(api_result: dict, device_id: int) -> float:
     """Return WeatherFlow Device Voltage from API."""
@@ -515,4 +516,3 @@ def _get_device_data(api_result: dict, device_id: int) -> float:
     )
 
     return device_data
-
