@@ -373,7 +373,7 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
+def _get_station(self, api_result: dict) -> list[WeatherFlowStationData]:
     """Return WeatherFlowForecast list from API."""
     return self._get_stations(api_result)[0]
 
