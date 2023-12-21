@@ -27,8 +27,7 @@ from .data import (
     WeatherFlowSensorData,
     WeatherFlowStationData,
 )
-
-_LOGGER = logging.getLogger(__name__)
+from .const import _LOGGER
 
 class WeatherFlowForecastBadRequest(Exception):
     """Request is invalid."""
