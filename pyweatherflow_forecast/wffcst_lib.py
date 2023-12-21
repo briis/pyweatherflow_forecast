@@ -128,13 +128,11 @@ class WeatherFlow:
         station_id: int,
         api_token: str,
         session: aiohttp.ClientSession = None,
-        elevation = None,
         api: WeatherFlowAPIBase = WeatherFlowAPI(),
     ) -> None:
         """Return data from WeatherFlow API."""
         self._station_id = station_id
         self._api_token = api_token
-        self._elevation = elevation
         self._api = api
         self._device_id = None
         self._tempest_device = False
@@ -154,12 +152,15 @@ class WeatherFlow:
 
         return _get_forecast(self._json_data)
 
-    def get_station(self) -> list[WeatherFlowStationData]:
-        """Return list of station information."""
+    def get_station(self) -> WeatherFlowStationData:
+        """Return data for a single station."""
         station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
         json_data = self._api.api_request(station_url)
 
         return _get_station(json_data)
+
+    def get_stations(self) -> list[WeatherFlowStationData]:
+        """Return a list of stations"""
 
     def fetch_sensor_data(self, voltage: float = None) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
@@ -375,34 +376,41 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
 # pylint: disable=R0914, R0912, W0212, R0915
 def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
     """Return WeatherFlowForecast list from API."""
+    return self._get_stations(api_result)[0]
 
-    item = api_result["stations"][0]
 
-    station_name = item.get("name", None)
-    latitude = item.get("latitude", None)
-    longitude = item.get("longitude", None)
-    timezone = item.get("timezone", None)
-    device_id = None
-    firmware_revision = None
-    serial_number = None
-    for device in item["devices"]:
-        if device.get("device_type", None) == "ST":
-            device_id = device.get("device_id", None)
-            firmware_revision = device.get("firmware_revision", None)
-            serial_number = device.get("serial_number", None)
-            break
+def _get_stations(api_result: dict) -> list[WeatherFlowStationData]:
+    """Return WeatherFlowForecast list from API."""
+    stations = []
+    for item in api_result["stations"]:
 
-    station_data = WeatherFlowStationData(
-        station_name,
-        latitude,
-        longitude,
-        timezone,
-        device_id,
-        firmware_revision,
-        serial_number,
-    )
+        station_name = item.get("name", None)
+        latitude = item.get("latitude", None)
+        longitude = item.get("longitude", None)
+        timezone = item.get("timezone", None)
+        device_id = None
+        firmware_revision = None
+        serial_number = None
+        for device in item["devices"]:
+            if device.get("device_type", None) == "ST":
+                device_id = device.get("device_id", None)
+                firmware_revision = device.get("firmware_revision", None)
+                serial_number = device.get("serial_number", None)
+                break
 
-    return station_data
+        stations.append( WeatherFlowStationData(
+            station_name,
+            latitude,
+            longitude,
+            timezone,
+            device_id,
+            firmware_revision,
+            serial_number,
+        ))
+
+
+    return stations
+
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
