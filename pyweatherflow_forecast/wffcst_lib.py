@@ -11,6 +11,7 @@ from typing import Any
 from urllib.request import urlopen
 
 import aiohttp
+from urllib.request import Request
 
 from .const import (
     ICON_LIST,
@@ -74,7 +75,10 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
         """Return data from API."""
         _LOGGER.debug("URL: %s", url)
 
-        response = urlopen(url)
+        req = Request(url)
+        req.add_header('User-Agent', 'weatherflowforecast')
+        response = urlopen(req)
+        # response = urlopen(url)
         data = response.read().decode("utf-8")
         json_data = json.loads(data)
 
@@ -90,7 +94,9 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
             self.session = aiohttp.ClientSession()
             is_new_session = True
 
-        async with self.session.get(url) as response:
+        headers = {'User-Agent': 'weatherflowforecast'}
+
+        async with self.session.get(url, headers=headers) as response:
             if response.status != 200:
                 if is_new_session:
                     await self.session.close()
