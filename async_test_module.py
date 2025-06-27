@@ -73,6 +73,7 @@ async def main() -> None:
         print("STATION NAME: ", sensor_data.station_name)
         print("PRECIP INTENSITY: ", sensor_data.precip_intensity)
         print("PRECIP: ", sensor_data.precip)
+        print("PRECIP LAST HOUR: ", sensor_data.precip_accum_last_1hr)
         print("PRECIP TYPE: ", sensor_data.precip_type)
 
     except Exception as err:
