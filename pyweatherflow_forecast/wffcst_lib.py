@@ -368,7 +368,12 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         if _hour_counter > forecast_hours:
             break
 
-        timestamp = item["time"]
+        timestamp = item.get("time", None)
+        if timestamp is None:
+            # WeatherFlow occasionally omits 'time' on an hourly forecast row.
+            # Skip that row instead of raising KeyError, which would fail the
+            # entire update and take all entities offline until the next poll.
+            continue
         valid_time = datetime.datetime.fromtimestamp(timestamp)
         condition = item.get("conditions", None)
         icon = ICON_LIST.get(item["icon"], "exceptional")
